@@ -13,16 +13,20 @@ import { Modal } from '../components/Modal';
 import { FloatingTile, FLOATING_TILES } from '../components/FloatingTile';
 
 type TitleScreenProps = {
-  onPlay: () => void;
-  onPlayTimed: () => void;
+  onJourney: () => void;
+  onEndless: () => void;
+  onTimed: () => void;
+  onClassic: () => void;
+  onPinyin: () => void;
   settings: Settings;
   updateSetting: <K extends keyof Settings>(key: K, val: Settings[K]) => void;
 };
 
-export function TitleScreen({ onPlay, onPlayTimed, settings, updateSetting }: TitleScreenProps) {
+export function TitleScreen({ onJourney, onEndless, onTimed, onClassic, onPinyin, settings, updateSetting }: TitleScreenProps) {
   const vw = useWindowSize();
   const isMobile = vw < 640;
   const [modal, setModal] = useState<"rules" | "credits" | "settings" | null>(null);
+  const [expandedSection, setExpandedSection] = useState<"sp" | "mp" | null>("sp");
   const [entered, setEntered] = useState(false);
   const [wordImport, setWordImport] = useState(""); // textarea value for bulk word import
   const [customWordList, setCustomWordList] = useState(() => [...SESSION_CUSTOM_WORDS]); // reactive copy
@@ -229,49 +233,124 @@ export function TitleScreen({ onPlay, onPlayTimed, settings, updateSetting }: Ti
           </div>
         </div>
 
-        {/* Menu buttons */}
+        {/* Mode selection + utility buttons */}
         <div style={{
-          display: "flex", flexDirection: "column", gap: 12,
+          display: "flex", flexDirection: "column", gap: 10,
           width: isMobile ? `calc(100vw - 32px)` : 340,
         }}>
+          {/* Single Player accordion */}
+          <div style={{ animation: "menuFadeIn 0.5s ease 0.5s both" }}>
+            <button
+              onClick={() => setExpandedSection(s => s === "sp" ? null : "sp")}
+              style={{
+                width: "100%", padding: "16px 28px",
+                borderRadius: expandedSection === "sp" ? "14px 14px 0 0" : 14,
+                background: expandedSection === "sp"
+                  ? "linear-gradient(135deg, #f0c06038, #f0c0601a)"
+                  : "linear-gradient(135deg, #f0c06022, #f0c0600d)",
+                ...(expandedSection === "sp"
+                  ? { borderTop: "1.5px solid #f0c06099", borderLeft: "1.5px solid #f0c06099", borderRight: "1.5px solid #f0c06099", borderBottom: "none" }
+                  : { border: "1.5px solid #f0c06055" }),
+                color: "#f0c060", fontSize: 16, fontWeight: 800,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between",
+                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                boxShadow: "0 4px 24px #f0c06018",
+              }}
+            >
+              <span>🎮  Single Player</span>
+              <span style={{ fontSize: 14, opacity: 0.7 }}>{expandedSection === "sp" ? "▼" : "▶"}</span>
+            </button>
+            {expandedSection === "sp" && (
+              <div style={{
+                background: "linear-gradient(180deg, #f0c0600a, #f0c06005)",
+                borderLeft: "1.5px solid #f0c06055", borderRight: "1.5px solid #f0c06055", borderBottom: "1.5px solid #f0c06055",
+                borderRadius: "0 0 14px 14px",
+                padding: "8px 10px 10px",
+                display: "flex", flexDirection: "column", gap: 6,
+              }}>
+                {([
+                  { label: "🎓  Phonics Journey", color: "#2EC4B6", sub: "ENGLISH · START HERE", onClick: () => { AudioEngine.play("modeSelect"); onJourney(); } },
+                  { label: "∞  Endless Mode",     color: "#f0c060", sub: "ENGLISH",              onClick: () => { AudioEngine.play("modeSelect"); onEndless(); } },
+                  { label: "⏱  Timed Mode",       color: "#E84855", sub: "ENGLISH",              onClick: () => { AudioEngine.play("modeSelect"); onTimed(); } },
+                  { label: "🀄  Classic Mahjong",  color: "#C77DFF", sub: "ENGLISH",              onClick: () => { AudioEngine.play("modeSelect"); onClassic(); } },
+                  { label: "拼  Pinyin Discovery", color: "#E84855", sub: "CHINESE PINYIN",       onClick: () => { AudioEngine.play("modeSelect"); onPinyin(); } },
+                ] as Array<{ label: string; color: string; sub: string; onClick: () => void }>).map(({ label, color, sub, onClick }) => (
+                  <button
+                    key={label}
+                    onClick={onClick}
+                    style={{
+                      width: "100%", padding: "11px 16px", borderRadius: 10,
+                      background: `linear-gradient(135deg, ${color}18, ${color}08)`,
+                      border: `1px solid ${color}44`,
+                      color, fontSize: 13, fontWeight: 700,
+                      letterSpacing: "0.06em", textTransform: "uppercase",
+                      cursor: "pointer",
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      fontFamily: "'Segoe UI', system-ui, sans-serif",
+                      transition: "all 0.18s ease",
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = `linear-gradient(135deg, ${color}2e, ${color}14)`;
+                      e.currentTarget.style.borderColor = `${color}88`;
+                      e.currentTarget.style.transform = "translateX(4px)";
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = `linear-gradient(135deg, ${color}18, ${color}08)`;
+                      e.currentTarget.style.borderColor = `${color}44`;
+                      e.currentTarget.style.transform = "translateX(0)";
+                    }}
+                  >
+                    <span>{label}</span>
+                    <span style={{ fontSize: 9, opacity: 0.5, letterSpacing: "0.14em" }}>{sub}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Multiplayer accordion */}
+          <div style={{ animation: "menuFadeIn 0.5s ease 0.6s both" }}>
+            <button
+              onClick={() => setExpandedSection(s => s === "mp" ? null : "mp")}
+              style={{
+                width: "100%", padding: "16px 28px",
+                borderRadius: expandedSection === "mp" ? "14px 14px 0 0" : 14,
+                background: "linear-gradient(135deg, #2EC4B618, #2EC4B608)",
+                ...(expandedSection === "mp"
+                  ? { borderTop: "1.5px solid #2EC4B699", borderLeft: "1.5px solid #2EC4B699", borderRight: "1.5px solid #2EC4B699", borderBottom: "none" }
+                  : { border: "1.5px solid #2EC4B633" }),
+                color: "#2EC4B6", fontSize: 16, fontWeight: 800,
+                letterSpacing: "0.1em", textTransform: "uppercase",
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "space-between",
+                fontFamily: "'Segoe UI', system-ui, sans-serif",
+                boxShadow: "0 4px 24px #2EC4B618",
+              }}
+            >
+              <span>👥  Multiplayer</span>
+              <span style={{ fontSize: 14, opacity: 0.7 }}>{expandedSection === "mp" ? "▼" : "▶"}</span>
+            </button>
+            {expandedSection === "mp" && (
+              <div style={{
+                borderLeft: "1.5px solid #2EC4B633", borderRight: "1.5px solid #2EC4B633", borderBottom: "1.5px solid #2EC4B633",
+                borderRadius: "0 0 14px 14px",
+                padding: "14px 20px",
+                color: "#2EC4B666", fontSize: 12, letterSpacing: "0.1em", textAlign: "center",
+                lineHeight: 1.7,
+              }}>
+                Coming soon · Room codes · Head-to-head · Score battles
+              </div>
+            )}
+          </div>
+
+          {/* Utility buttons */}
           {[
-            {
-              label: "▶  Single Player",
-              color: "#f0c060",
-              delay: "0.5s",
-              onClick: () => { AudioEngine.play("modeSelect"); onPlay(); },
-            },
-            {
-              label: "⚔  Multiplayer",
-              color: "#2EC4B6",
-              delay: "0.62s",
-              subtitle: "COMING SOON",
-              onClick: () => {},
-            },
-            {
-              label: "📖  Rules",
-              color: "#C77DFF",
-              delay: "0.74s",
-              onClick: () => { AudioEngine.play("modalOpen"); setModal("rules"); },
-            },
-            {
-              label: "⚙  Settings",
-              color: "#F4A261",
-              delay: "0.74s",
-              onClick: () => { AudioEngine.play("modalOpen"); setModal("settings"); },
-            },
-            {
-              label: "✦  Credits",
-              color: "#9EF01A",
-              delay: "0.86s",
-              onClick: () => { AudioEngine.play("modalOpen"); setModal("credits"); },
-            },
-          ].map(({ label, color, delay, subtitle, onClick }, i) => (
-            <div key={i} style={{
-              animation: `menuFadeIn 0.5s ease ${delay} both`,
-              opacity: subtitle ? 0.6 : 1,
-            }}>
-              {menuBtn(label, color, subtitle ? undefined : onClick, subtitle)}
+            { label: "📖  Rules",    color: "#C77DFF", delay: "0.85s", onClick: () => { AudioEngine.play("modalOpen"); setModal("rules"); } },
+            { label: "⚙  Settings", color: "#F4A261", delay: "0.9s",  onClick: () => { AudioEngine.play("modalOpen"); setModal("settings"); } },
+            { label: "✦  Credits",  color: "#9EF01A", delay: "0.95s", onClick: () => { AudioEngine.play("modalOpen"); setModal("credits"); } },
+          ].map(({ label, color, delay, onClick }) => (
+            <div key={label} style={{ animation: `menuFadeIn 0.5s ease ${delay} both` }}>
+              {menuBtn(label, color, onClick)}
             </div>
           ))}
         </div>

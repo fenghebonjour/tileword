@@ -8,8 +8,9 @@ import { MahjongPhonicsGame } from './screens/MahjongPhonicsGame';
 import { TimedMode } from './screens/TimedMode';
 import { ClassicMode } from './screens/ClassicMode';
 import { PhonicsJourneyGame } from './screens/PhonicsJourneyGame';
+import { PinyinGame } from './screens/PinyinGame';
 
-type Screen = "title" | "singleplayer" | "endless" | "timed" | "classic" | "journey";
+type Screen = "title" | "singleplayer" | "endless" | "timed" | "classic" | "journey" | "pinyin";
 
 // --- ROOT APP - manages screen routing ----------------------------------------
 export default function App() {
@@ -21,7 +22,9 @@ export default function App() {
   const handleUnlock = () => AudioEngine.unlock();
 
   let content;
-  if (screen === "journey") {
+  if (screen === "pinyin") {
+    content = <PinyinGame onBack={() => setScreen("title")} />;
+  } else if (screen === "journey") {
     content = <PhonicsJourneyGame onBack={() => setScreen("singleplayer")} />;
   } else if (screen === "endless") {
     content = <MahjongPhonicsGame onBackToTitle={() => setScreen("title")} settings={settings} />;
@@ -39,8 +42,11 @@ export default function App() {
     />;
   } else {
     content = <TitleScreen
-      onPlay={() => setScreen("singleplayer")}
-      onPlayTimed={() => setScreen("singleplayer")}
+      onJourney={() => setScreen("journey")}
+      onEndless={() => setScreen("endless")}
+      onTimed={() => setScreen("timed")}
+      onClassic={() => setScreen("classic")}
+      onPinyin={() => setScreen("pinyin")}
       settings={settings}
       updateSetting={updateSetting}
     />;
