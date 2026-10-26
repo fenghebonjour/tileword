@@ -18,11 +18,13 @@ type TitleScreenProps = {
   onTimed: () => void;
   onClassic: () => void;
   onPinyin: () => void;
+  onFrench: () => void;
+  onFrenchPhonics: () => void;
   settings: Settings;
   updateSetting: <K extends keyof Settings>(key: K, val: Settings[K]) => void;
 };
 
-export function TitleScreen({ onJourney, onEndless, onTimed, onClassic, onPinyin, settings, updateSetting }: TitleScreenProps) {
+export function TitleScreen({ onJourney, onEndless, onTimed, onClassic, onPinyin, onFrench, onFrenchPhonics, settings, updateSetting }: TitleScreenProps) {
   const vw = useWindowSize();
   const isMobile = vw < 640;
   const [modal, setModal] = useState<"rules" | "credits" | "settings" | null>(null);
@@ -274,7 +276,9 @@ export function TitleScreen({ onJourney, onEndless, onTimed, onClassic, onPinyin
                   { label: "∞  Endless Mode",     color: "#f0c060", sub: "ENGLISH",              onClick: () => { AudioEngine.play("modeSelect"); onEndless(); } },
                   { label: "⏱  Timed Mode",       color: "#E84855", sub: "ENGLISH",              onClick: () => { AudioEngine.play("modeSelect"); onTimed(); } },
                   { label: "🀄  Classic Mahjong",  color: "#C77DFF", sub: "ENGLISH",              onClick: () => { AudioEngine.play("modeSelect"); onClassic(); } },
-                  { label: "拼  Pinyin Discovery", color: "#E84855", sub: "CHINESE PINYIN",       onClick: () => { AudioEngine.play("modeSelect"); onPinyin(); } },
+                  { label: "🇫🇷  French Words",   color: "#E84855", sub: "FRANÇAIS",              onClick: () => { AudioEngine.play("modeSelect"); onFrench(); } },
+                  { label: "拼  Pinyin Discovery", color: "#f0c060", sub: "CHINESE PINYIN",       onClick: () => { AudioEngine.play("modeSelect"); onPinyin(); } },
+                  { label: "Fr  French Phonics",   color: "#0055A4", sub: "MÉTHODE SYLLABIQUE",   onClick: () => { AudioEngine.play("modeSelect"); onFrenchPhonics(); } },
                 ] as Array<{ label: string; color: string; sub: string; onClick: () => void }>).map(({ label, color, sub, onClick }) => (
                   <button
                     key={label}
