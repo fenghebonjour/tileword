@@ -12,7 +12,7 @@ import { PinyinGame } from './screens/PinyinGame';
 
 type Screen = "title" | "singleplayer" | "endless" | "timed" | "classic" | "journey" | "pinyin";
 
-// --- ROOT APP - manages screen routing -------------------------------- --------
+// --- ROOT APP - manages screen routing ----------------------------------------
 export default function App() {
   const [screen, setScreen] = useState<Screen>("title");
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
